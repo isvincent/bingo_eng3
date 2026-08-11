@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { font-family: 'Nunito','Noto Sans TC',sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: var(--accent, #ff7a3d); text-decoration: none; }
+  a:hover { color: var(--accent2, #2bb3a3); }
+  @keyframes fadeIn { from { opacity:0; transform: translateY(14px) scale(.98); } to { opacity:1; transform: none; } }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 15%{transform:translateX(-12px)} 30%{transform:translateX(11px)} 45%{transform:translateX(-8px)} 60%{transform:translateX(7px)} 75%{transform:translateX(-4px)} }
+  @keyframes popStamp { 0%{transform:scale(0) rotate(-30deg);opacity:0} 60%{transform:scale(1.25) rotate(8deg);opacity:1} 100%{transform:scale(1) rotate(-8deg);opacity:1} }
+  @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
+  @keyframes floatUp { 0%{opacity:0;transform:translate(-50%,20px) scale(.6)} 25%{opacity:1;transform:translate(-50%,-6px) scale(1.15)} 100%{opacity:0;transform:translate(-50%,-90px) scale(1)} }
+  @keyframes confFall { 0%{opacity:1;transform:translateY(-10vh) rotate(0)} 100%{opacity:.9;transform:translateY(110vh) rotate(720deg)} }
+  @keyframes bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+  @keyframes sheen { 0%{background-position:0% 50%} 100%{background-position:200% 50%} }
+</style>
+</helmet>
+
+<div style="{{ appStyle }}">
+
+  <!-- top bar -->
+  <div style="max-width:1120px;margin:0 auto;padding:18px 20px 0;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+    <div onClick="{{ goMenu }}" style="display:flex;align-items:center;gap:12px;cursor:pointer;">
+      <div style="width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font-size:28px;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 6px 18px rgba(0,0,0,.18);animation:bob 3s ease-in-out infinite;">🎯</div>
+      <div>
+        <div style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:26px;line-height:1;color:var(--text);letter-spacing:.5px;">單字賓果 <span style="color:var(--accent);">BINGO</span></div>
+        <div style="font-size:13px;color:var(--muted);font-weight:700;margin-top:3px;">高中英語 · 25 字挑戰</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <button onClick="{{ toggleSound }}" title="音效" style="width:46px;height:46px;border:none;border-radius:12px;cursor:pointer;font-size:20px;background:var(--panel);color:var(--text);box-shadow:0 3px 10px rgba(0,0,0,.1);">{{ soundIcon }}</button>
+      <button onClick="{{ toggleDark }}" title="深色模式" style="width:46px;height:46px;border:none;border-radius:12px;cursor:pointer;font-size:20px;background:var(--panel);color:var(--text);box-shadow:0 3px 10px rgba(0,0,0,.1);">{{ darkIcon }}</button>
+    </div>
+  </div>
+
+  <!-- ===================== MENU ===================== -->
+  <sc-if value="{{ isMenu }}" hint-placeholder-val="{{ true }}">
+  <div style="max-width:1120px;margin:0 auto;padding:20px;display:grid;grid-template-columns:1.35fr .9fr;gap:22px;align-items:start;">
+
+    <div style="background:var(--panel);border-radius:24px;padding:26px 26px 30px;box-shadow:0 14px 40px rgba(0,0,0,.10);animation:fadeIn .5s both;">
+      <div style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:24px;color:var(--text);margin-bottom:4px;">開始設定</div>
+      <div style="font-size:15px;color:var(--muted);font-weight:700;margin-bottom:20px;">選好模式就能開玩，教學／自學都適用。</div>
+
+      <div style="font-weight:800;color:var(--text);margin:0 0 9px;font-size:15px;">① 使用模式</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;">
+        <sc-for list="{{ playModeOpts }}" as="o" hint-placeholder-count="2">
+          <button onClick="{{ o.pick }}" style="{{ o.style }}">
+            <div style="font-size:30px;">{{ o.icon }}</div>
+            <div style="font-weight:800;font-size:17px;margin-top:6px;">{{ o.label }}</div>
+            <div style="font-size:12.5px;font-weight:700;opacity:.75;margin-top:2px;">{{ o.desc }}</div>
+          </button>
+        </sc-for>
+      </div>
+
+      <div style="font-weight:800;color:var(--text);margin:0 0 9px;font-size:15px;">② 盤面大小</div>
+      <div style="display:flex;gap:12px;margin-bottom:20px;">
+        <sc-for list="{{ gridOpts }}" as="o" hint-placeholder-count="2">
+          <button onClick="{{ o.pick }}" style="{{ o.style }}">{{ o.label }}</button>
+        </sc-for>
+      </div>
+
+      <div style="font-weight:800;color:var(--text);margin:0 0 9px;font-size:15px;">③ 出題方式</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:22px;">
+        <sc-for list="{{ callOpts }}" as="o" hint-placeholder-count="5">
+          <button onClick="{{ o.pick }}" style="{{ o.style }}">{{ o.label }}</button>
+        </sc-for>
+      </div>
+
+      <sc-if value="{{ isStudent }}" hint-placeholder-val="{{ true }}">
+      <div style="font-weight:800;color:var(--text);margin:0 0 9px;font-size:15px;">④ 玩家暱稱（登上排行榜）</div>
+      <input value="{{ nameValue }}" onInput="{{ onName }}" maxlength="12" placeholder="輸入你的名字" style="width:100%;padding:14px 16px;font-size:16px;font-weight:700;font-family:inherit;border:2px solid var(--line);border-radius:14px;background:var(--bg2);color:var(--text);outline:none;margin-bottom:20px;" />
+      </sc-if>
+
+      <button onClick="{{ startGame }}" style="width:100%;padding:18px;border:none;border-radius:16px;cursor:pointer;font-family:'Fredoka',sans-serif;font-weight:700;font-size:22px;color:#fff;background:linear-gradient(120deg,var(--accent),var(--accent2));background-size:200% 100%;box-shadow:0 10px 26px rgba(0,0,0,.2);animation:sheen 4s linear infinite;" style-hover="transform:translateY(-2px);">🚀 開始遊戲</button>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:18px;">
+      <div style="background:var(--panel);border-radius:24px;padding:22px;box-shadow:0 14px 40px rgba(0,0,0,.10);animation:fadeIn .6s both;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+          <span style="font-size:22px;">🏆</span>
+          <span style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:20px;color:var(--text);">排行榜</span>
+        </div>
+        <sc-if value="{{ hasScores }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <sc-for list="{{ topScores }}" as="s" hint-placeholder-count="3">
+              <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:12px;background:{{ s.bg }};">
+                <div style="width:28px;height:28px;border-radius:8px;display:grid;place-items:center;font-weight:800;font-size:14px;color:#fff;background:{{ s.medal }};">{{ s.rank }}</div>
+                <div style="flex:1;font-weight:800;color:var(--text);font-size:15px;">{{ s.name }}</div>
+                <div style="font-size:12px;color:var(--muted);font-weight:700;">{{ s.meta }}</div>
+                <div style="font-weight:800;color:var(--accent);font-size:16px;">{{ s.score }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{ noScores }}" hint-placeholder-val="{{ true }}">
+          <div style="text-align:center;padding:18px 0;color:var(--muted);font-weight:700;font-size:14px;">還沒有紀錄，快來搶第一名！</div>
+        </sc-if>
+      </div>
+
+      <div style="background:var(--panel);border-radius:24px;padding:22px;box-shadow:0 14px 40px rgba(0,0,0,.10);animation:fadeIn .7s both;">
+        <div style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:18px;color:var(--text);margin-bottom:6px;">📄 學習單</div>
+        <div style="font-size:13.5px;color:var(--muted);font-weight:700;line-height:1.5;margin-bottom:14px;">中英對照 + 定義例句 + 造句練習 + 空白賓果盤，可下載為 Word 列印。</div>
+        <button onClick="{{ downloadDoc }}" style="width:100%;padding:13px;border:none;border-radius:13px;cursor:pointer;font-weight:800;font-size:15px;color:#fff;background:var(--accent2);" style-hover="filter:brightness(1.05);">下載 Word 學習單</button>
+      </div>
+
+      <div style="background:var(--panel);border-radius:24px;padding:20px 22px;box-shadow:0 14px 40px rgba(0,0,0,.10);animation:fadeIn .8s both;">
+        <div style="font-weight:800;color:var(--text);font-size:15px;margin-bottom:8px;">怎麼玩？</div>
+        <div style="font-size:13.5px;color:var(--muted);font-weight:700;line-height:1.7;">看題目找出對應單字並點選格子，把整個盤面全部連線（Blackout）就獲勝。連續答對可累積 Combo 加分，速度越快分數越高！</div>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ===================== STUDENT GAME ===================== -->
+  <sc-if value="{{ isStudentGame }}" hint-placeholder-val="{{ true }}">
+  <div style="max-width:1120px;margin:0 auto;padding:16px 20px 30px;">
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;">
+      <sc-for list="{{ hud }}" as="h" hint-placeholder-count="4">
+        <div style="flex:1;min-width:120px;background:var(--panel);border-radius:16px;padding:12px 16px;box-shadow:0 6px 18px rgba(0,0,0,.08);display:flex;align-items:center;gap:12px;">
+          <div style="font-size:24px;">{{ h.icon }}</div>
+          <div>
+            <div style="font-size:12px;color:var(--muted);font-weight:800;letter-spacing:.4px;">{{ h.label }}</div>
+            <div style="font-size:22px;font-weight:800;color:{{ h.color }};font-family:'Fredoka',sans-serif;line-height:1.1;">{{ h.value }}</div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+
+    <!-- clue -->
+    <div style="position:relative;">
+      {{ clueEl }}
+      {{ comboToast }}
+    </div>
+
+    <!-- board -->
+    <div style="{{ boardStyle }}">
+      <sc-for list="{{ cells }}" as="c" hint-placeholder-count="25">
+        <button onClick="{{ c.onClick }}" style="{{ c.style }}">
+          <span style="{{ c.wordStyle }}">{{ c.en }}</span>
+          <sc-if value="{{ c.marked }}" hint-placeholder-val="{{ false }}">
+            <span style="position:absolute;inset:0;display:grid;place-items:center;font-size:38px;color:rgba(255,255,255,.95);animation:popStamp .4s cubic-bezier(.2,1.4,.4,1) both;text-shadow:0 2px 6px rgba(0,0,0,.25);">✓</span>
+          </sc-if>
+        </button>
+      </sc-for>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ===================== TEACHER CALLER ===================== -->
+  <sc-if value="{{ isTeacherGame }}" hint-placeholder-val="{{ true }}">
+  <div style="max-width:1000px;margin:0 auto;padding:16px 20px 30px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px;">
+      <div style="font-weight:800;color:var(--text);font-size:16px;">📣 教學叫號 · 已叫 {{ calledCount }} / {{ totalCount }}</div>
+      <div style="height:12px;flex:1;min-width:180px;max-width:420px;background:var(--line);border-radius:8px;overflow:hidden;"><div style="height:100%;width:{{ progressPct }};background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:8px;transition:width .4s;"></div></div>
+    </div>
+
+    {{ clueEl }}
+
+    <div style="display:flex;gap:14px;justify-content:center;margin:20px 0 24px;flex-wrap:wrap;">
+      <button onClick="{{ revealToggle }}" style="padding:15px 28px;border:2px solid var(--accent);border-radius:14px;cursor:pointer;font-weight:800;font-size:17px;background:var(--panel);color:var(--accent);">{{ revealLabel }}</button>
+      <button onClick="{{ nextCall }}" style="padding:15px 34px;border:none;border-radius:14px;cursor:pointer;font-weight:800;font-size:17px;color:#fff;background:linear-gradient(120deg,var(--accent),var(--accent2));box-shadow:0 8px 22px rgba(0,0,0,.18);">{{ nextLabel }} ▶</button>
+    </div>
+
+    <div style="background:var(--panel);border-radius:18px;padding:18px 20px;box-shadow:0 8px 24px rgba(0,0,0,.08);">
+      <div style="font-weight:800;color:var(--muted);font-size:13px;margin-bottom:12px;letter-spacing:.4px;">已叫過的單字</div>
+      <div style="display:flex;flex-wrap:wrap;gap:9px;">
+        <sc-for list="{{ calledChips }}" as="c" hint-placeholder-count="6">
+          <span style="{{ c.style }}">{{ c.en }}</span>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ===================== WIN ===================== -->
+  <sc-if value="{{ isWin }}" hint-placeholder-val="{{ true }}">
+  <div style="position:relative;max-width:760px;margin:0 auto;padding:24px 20px 40px;overflow:hidden;">
+    <div style="position:fixed;inset:0;pointer-events:none;z-index:5;">
+      <sc-for list="{{ confetti }}" as="p" hint-placeholder-count="0">
+        <span style="{{ p }}"></span>
+      </sc-for>
+    </div>
+    <div style="background:var(--panel);border-radius:26px;padding:34px 30px;box-shadow:0 18px 50px rgba(0,0,0,.18);text-align:center;animation:fadeIn .5s both;position:relative;z-index:6;">
+      <div style="font-size:70px;animation:bob 1.6s ease-in-out infinite;">🎉</div>
+      <div style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:40px;color:var(--accent);letter-spacing:1px;">BINGO 全連線！</div>
+      <div style="font-size:16px;color:var(--muted);font-weight:800;margin-top:4px;">{{ winSubtitle }}</div>
+
+      <div style="display:flex;gap:14px;justify-content:center;margin:24px 0;flex-wrap:wrap;">
+        <sc-for list="{{ winStats }}" as="s" hint-placeholder-count="3">
+          <div style="min-width:120px;background:var(--bg2);border-radius:16px;padding:16px 20px;">
+            <div style="font-size:30px;">{{ s.icon }}</div>
+            <div style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:28px;color:var(--text);margin-top:4px;">{{ s.value }}</div>
+            <div style="font-size:13px;color:var(--muted);font-weight:800;">{{ s.label }}</div>
+          </div>
+        </sc-for>
+      </div>
+
+      <sc-if value="{{ showSave }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;gap:10px;justify-content:center;margin-bottom:8px;flex-wrap:wrap;">
+          <input value="{{ nameValue }}" onInput="{{ onName }}" maxlength="12" placeholder="你的名字" style="padding:13px 16px;font-size:16px;font-weight:700;font-family:inherit;border:2px solid var(--line);border-radius:13px;background:var(--bg2);color:var(--text);outline:none;" />
+          <button onClick="{{ saveScore }}" style="padding:13px 24px;border:none;border-radius:13px;cursor:pointer;font-weight:800;font-size:16px;color:#fff;background:var(--accent);">存到排行榜</button>
+        </div>
+      </sc-if>
+      <sc-if value="{{ saved }}" hint-placeholder-val="{{ false }}">
+        <div style="color:var(--accent2);font-weight:800;font-size:15px;margin-bottom:8px;">✔ 已登上排行榜！</div>
+      </sc-if>
+
+      <div style="display:flex;gap:12px;justify-content:center;margin-top:18px;flex-wrap:wrap;">
+        <button onClick="{{ startGame }}" style="padding:15px 30px;border:none;border-radius:14px;cursor:pointer;font-weight:800;font-size:17px;color:#fff;background:linear-gradient(120deg,var(--accent),var(--accent2));box-shadow:0 8px 22px rgba(0,0,0,.18);">🔁 再玩一次</button>
+        <button onClick="{{ goMenu }}" style="padding:15px 30px;border:2px solid var(--line);border-radius:14px;cursor:pointer;font-weight:800;font-size:17px;background:var(--panel);color:var(--text);">回主選單</button>
+        <button onClick="{{ downloadDoc }}" style="padding:15px 24px;border:2px solid var(--line);border-radius:14px;cursor:pointer;font-weight:800;font-size:16px;background:var(--panel);color:var(--text);">📄 學習單</button>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1120,&quot;height&quot;:780},&quot;colorTheme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;陽光橘&quot;,&quot;海洋藍&quot;,&quot;莓果紫&quot;,&quot;森林綠&quot;],&quot;default&quot;:&quot;陽光橘&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;外觀&quot;},&quot;confettiOn&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;外觀&quot;}}">
+class Component extends DCLogic {
+  WORDS = [
+    {en:"gender",zh:"性別",def:"the state of being male or female",cloze:"The form asks for your name, age, and _____."},
+    {en:"gap",zh:"差距；缺口",def:"a space or difference between two things",cloze:"There is still a wage _____ between men and women."},
+    {en:"population",zh:"人口",def:"all the people living in a particular area",cloze:"The city has a _____ of over three million."},
+    {en:"protest",zh:"抗議",def:"to show that you strongly disagree with something",cloze:"Thousands of people came out to _____ against the new law."},
+    {en:"injustice",zh:"不公；不義",def:"a situation in which people are treated unfairly",cloze:"The movie is about fighting social _____."},
+    {en:"domestic",zh:"家庭的；國內的",def:"relating to the home, family, or one country",cloze:"They share the _____ chores at home."},
+    {en:"chore",zh:"家務；雜事",def:"a small job that must be done regularly at home",cloze:"Doing the dishes is my least favorite _____."},
+    {en:"majority",zh:"多數",def:"the largest part or greatest number of a group",cloze:"The _____ of the class agreed with the plan."},
+    {en:"chaos",zh:"混亂",def:"a state of complete confusion and disorder",cloze:"The heavy storm caused total _____ in the city."},
+    {en:"additionally",zh:"此外；另外",def:"used to add more information; in addition",cloze:"The trip is cheap. _____, the hotel is free."},
+    {en:"nursery",zh:"育嬰室；托兒所",def:"a place where young children are looked after",cloze:"They dropped their baby off at the _____."},
+    {en:"paralyze",zh:"使癱瘓；使無法行動",def:"to make someone or something unable to move or act",cloze:"Fear can _____ you during an emergency."},
+    {en:"council",zh:"議會；委員會",def:"a group of people chosen to make decisions",cloze:"The city _____ voted to build a new park."},
+    {en:"ban",zh:"禁止",def:"to officially say that something is not allowed",cloze:"The school decided to _____ mobile phones in class."},
+    {en:"discrimination",zh:"歧視",def:"unfair treatment of people because of their group",cloze:"The law protects workers from _____."},
+    {en:"democratic",zh:"民主的",def:"based on the idea that everyone is equal and can vote",cloze:"Voting is an important part of a _____ country."},
+    {en:"anniversary",zh:"週年紀念",def:"a date remembered because something happened on it before",cloze:"They celebrated their tenth wedding _____."},
+    {en:"salary",zh:"薪水",def:"a fixed amount of money paid to someone for their work",cloze:"She earns a good monthly _____ at her new job."},
+    {en:"tough",zh:"艱難的；堅韌的",def:"difficult to do, or strong and not easily broken",cloze:"The first exam was really _____."},
+    {en:"revolutionary",zh:"革命性的",def:"completely new and causing great change",cloze:"The smartphone was a _____ invention."},
+    {en:"certificate",zh:"證書；證明書",def:"an official document that proves something is true",cloze:"She got a _____ after finishing the course."},
+    {en:"strict",zh:"嚴格的",def:"expecting rules to be obeyed and behavior to be careful",cloze:"Our teacher is very _____ about being on time."},
+    {en:"bold",zh:"大膽的；勇敢的",def:"brave, confident, and not afraid to take risks",cloze:"It was a _____ decision to start her own company."},
+    {en:"eliminate",zh:"消除；淘汰",def:"to completely remove or get rid of something",cloze:"We should _____ waste to protect the planet."},
+    {en:"marvelous",zh:"極好的；了不起的",def:"extremely good; wonderful",cloze:"We had a _____ time at the beach party."},
+  ];
+  CARD = ["#ffd6a5","#fdffb6","#caffbf","#9bf6ff","#a0c4ff","#bdb2ff","#ffc6ff","#ffadad","#b5ead7","#ffdac1","#fbc4ab","#c1fba4"];
+
+  state = {
+    screen:"menu", playMode:"student", grid:5, callChoice:"mix",
+    dark:false, sound:true, name:"",
+    board:[], order:[], ptr:0, mode:"zh", attempt:0, wrong:false,
+    combo:0, maxCombo:0, score:0, elapsed:0, startTime:0,
+    reveal:false, saved:false, leaderboard:[], toast:null,
+  };
+
+  componentDidMount(){
+    try { const lb = JSON.parse(localStorage.getItem("bingo_lb_v1")||"[]"); this.setState({leaderboard:lb}); } catch(e){}
+    this.timer = setInterval(()=>{
+      if(this.state.screen==="game" && this.state.playMode==="student"){
+        this.setState({elapsed: Math.floor((Date.now()-this.state.startTime)/1000)});
+      }
+    },500);
+  }
+  componentWillUnmount(){ clearInterval(this.timer); }
+
+  // ---- audio ----
+  ensureAudio(){ if(!this.ac){ try{ this.ac=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } return this.ac; }
+  beep(freq,dur,type,vol,when){ const ac=this.ac; if(!ac) return; const o=ac.createOscillator(),g=ac.createGain(); o.type=type||"sine"; o.frequency.value=freq; const t=ac.currentTime+(when||0); g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(vol||0.2,t+0.02); g.gain.exponentialRampToValueAtTime(0.0001,t+dur); o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t+dur+0.05); }
+  sfx(kind){ if(!this.state.sound) return; this.ensureAudio(); if(this.ac&&this.ac.state==="suspended") this.ac.resume();
+    if(kind==="correct"){ this.beep(660,0.12,"triangle",0.25,0); this.beep(880,0.16,"triangle",0.22,0.09); }
+    else if(kind==="wrong"){ this.beep(180,0.25,"sawtooth",0.18,0); }
+    else if(kind==="combo"){ this.beep(720,0.1,"square",0.16,0); this.beep(960,0.1,"square",0.16,0.08); this.beep(1200,0.14,"square",0.16,0.16); }
+    else if(kind==="win"){ [523,659,784,1046].forEach((f,i)=>this.beep(f,0.3,"triangle",0.24,i*0.13)); }
+    else if(kind==="click"){ this.beep(420,0.06,"sine",0.12,0); }
+  }
+  speak(text){ if(!this.state.sound||!window.speechSynthesis) return; try{ window.speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(text); u.lang="en-US"; u.rate=0.9; window.speechSynthesis.speak(u); }catch(e){} }
+
+  shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+  pickMode(){ if(this.state.callChoice!=="mix") return this.state.callChoice; const m=["zh","cloze","audio","def"]; return m[Math.floor(Math.random()*m.length)]; }
+
+  startGame = ()=>{
+    this.ensureAudio(); if(this.ac&&this.ac.state==="suspended") this.ac.resume();
+    const n=this.state.grid*this.state.grid;
+    const pool=this.shuffle(this.WORDS).slice(0,n).map(w=>({...w,marked:false}));
+    const order=this.shuffle(pool.map((_,i)=>i));
+    const mode=this.pickMode();
+    this.setState({screen:"game",board:pool,order,ptr:0,mode,attempt:0,wrong:false,combo:0,maxCombo:0,score:0,elapsed:0,startTime:Date.now(),reveal:false,saved:false},()=>{
+      if(mode==="audio") this.speak(pool[order[0]].en);
+    });
+  };
+
+  target(){ const {board,order,ptr}=this.state; return board[order[ptr]]; }
+
+  selectCell = (i)=>{
+    if(this.state.playMode!=="student"||this.state.screen!=="game") return;
+    const b=this.state.board; const t=this.target();
+    if(b[i].marked) return;
+    if(b[i].en===t.en){
+      const nb=b.slice(); nb[i]={...nb[i],marked:true};
+      const combo=this.state.combo+1;
+      const maxCombo=Math.max(this.state.maxCombo,combo);
+      const gain=100+ (combo-1)*15;
+      const score=this.state.score+gain;
+      const done=nb.every(c=>c.marked);
+      this.sfx(combo>=3?"combo":"correct");
+      let toast=null;
+      if(combo>=2) toast={n:combo,gain,k:this.state.attempt+1};
+      if(done){
+        this.sfx("win");
+        this.setState({board:nb,combo,maxCombo,score,toast});
+        setTimeout(()=>this.finishWin(score,maxCombo),650);
+        return;
+      }
+      const nptr=this.state.ptr+1; const mode=this.pickMode();
+      this.setState({board:nb,ptr:nptr,mode,combo,maxCombo,score,attempt:this.state.attempt+1,wrong:false,toast},()=>{
+        if(mode==="audio") this.speak(this.target().en);
+      });
+    } else {
+      this.sfx("wrong");
+      this.setState({combo:0,wrong:true,attempt:this.state.attempt+1,toast:null});
+    }
+  };
+
+  finishWin(score,maxCombo){
+    // time bonus: faster is better
+    const tb=Math.max(0, 1200 - this.state.elapsed*8);
+    this.setState({screen:"win",score:score+tb,maxCombo,saved:false});
+  }
+
+  // teacher
+  nextCall = ()=>{
+    this.sfx("click");
+    if(this.state.ptr>=this.state.order.length-1){ this.setState({screen:"win",saved:true}); return; }
+    const nptr=this.state.ptr+1; const mode=this.pickMode();
+    this.setState({ptr:nptr,mode,reveal:false},()=>{ if(mode==="audio") this.speak(this.target().en); });
+  };
+  revealToggle = ()=>{ this.sfx("click"); const r=!this.state.reveal; this.setState({reveal:r},()=>{ if(r) this.speak(this.target().en); }); };
+
+  toggleDark = ()=>this.setState({dark:!this.state.dark});
+  toggleSound = ()=>{ const s=!this.state.sound; this.setState({sound:s}); if(s){ this.ensureAudio(); if(this.ac&&this.ac.state==="suspended")this.ac.resume(); this.sfx("click"); } };
+  onName = (e)=>this.setState({name:e.target.value});
+  goMenu = ()=>{ if(window.speechSynthesis)window.speechSynthesis.cancel(); this.setState({screen:"menu",saved:false}); };
+
+  saveScore = ()=>{
+    const name=(this.state.name||"匿名玩家").trim().slice(0,12);
+    const entry={name,score:this.state.score,time:this.state.elapsed,grid:this.state.grid,date:Date.now()};
+    const lb=[...this.state.leaderboard,entry].sort((a,b)=> b.score-a.score || a.time-b.time).slice(0,50);
+    try{ localStorage.setItem("bingo_lb_v1",JSON.stringify(lb)); }catch(e){}
+    this.setState({leaderboard:lb,saved:true}); this.sfx("correct");
+  };
+
+  fmtTime(s){ const m=Math.floor(s/60),ss=s%60; return (m<10?"0":"")+m+":"+(ss<10?"0":"")+ss; }
+
+  clueParts(){
+    const t=this.target(); if(!t) return {label:"",big:"",sub:""};
+    const m=this.state.mode;
+    if(m==="zh") return {label:"中文意思 · 找出對應英文",big:t.zh,sub:"",icon:"🀄"};
+    if(m==="def") return {label:"English definition",big:t.def,sub:"",icon:"📖"};
+    if(m==="cloze") return {label:"例句填空 · 哪個字？",big:t.cloze,sub:"",icon:"✏️"};
+    return {label:"聽發音 · 找出這個字",big:"🔊",sub:"點擊喇叭再聽一次",icon:"🎧"};
+  }
+
+  downloadDoc = ()=>{
+    this.sfx("click");
+    const rows=this.WORDS.map((w,i)=>`<tr><td style="text-align:center">${i+1}</td><td><b>${w.en}</b></td><td>${w.zh}</td><td>${w.def}</td><td>${w.cloze}</td></tr>`).join("");
+    const practice=this.WORDS.slice(0,12).map((w,i)=>`<tr><td style="width:120px"><b>${i+1}. ${w.en}</b></td><td style="border-bottom:1px solid #999">&nbsp;</td></tr>`).join("");
+    const grid=this.shuffle(this.WORDS).slice(0,25).map(w=>w.en);
+    let cells=""; for(let r=0;r<5;r++){ cells+="<tr>"; for(let c=0;c<5;c++){ cells+=`<td style="border:1px solid #333;width:110px;height:60px;text-align:center;font-weight:bold">${grid[r*5+c]}</td>`; } cells+="</tr>"; }
+    const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><title>單字賓果學習單</title></head>
+<body style="font-family:'Microsoft JhengHei','PMingLiU',serif;font-size:14px;line-height:1.6">
+<h1 style="text-align:center;color:#d2691e">單字賓果 BINGO 學習單</h1>
+<p style="text-align:center;color:#555">高中英語 25 字 ｜ 姓名：____________　班級：________　座號：______</p>
+<h2 style="color:#d2691e;border-bottom:2px solid #d2691e">一、中英對照與例句</h2>
+<table border="1" cellspacing="0" cellpadding="6" style="border-collapse:collapse;width:100%;font-size:13px">
+<tr style="background:#ffe9d6;font-weight:bold"><td style="text-align:center">#</td><td>單字</td><td>中文</td><td>定義 Definition</td><td>例句 Example</td></tr>
+${rows}</table>
+<h2 style="color:#d2691e;border-bottom:2px solid #d2691e;page-break-before:always">二、造句練習</h2>
+<p>請從下列單字中挑選，用英文完成一個句子：</p>
+<table cellspacing="0" cellpadding="8" style="width:100%">${practice}</table>
+<h2 style="color:#d2691e;border-bottom:2px solid #d2691e;page-break-before:always">三、賓果盤（5×5）</h2>
+<p>老師叫到的單字請打勾，全部連線即 BINGO！</p>
+<table cellspacing="0" cellpadding="0" style="border-collapse:collapse;margin:0 auto">${cells}</table>
+<h2 style="color:#d2691e;border-bottom:2px solid #d2691e">四、空白賓果盤（自己填字）</h2>
+<table cellspacing="0" cellpadding="0" style="border-collapse:collapse;margin:0 auto">${(()=>{let s="";for(let r=0;r<5;r++){s+="<tr>";for(let c=0;c<5;c++){s+='<td style="border:1px solid #333;width:110px;height:60px"></td>';}s+="</tr>";}return s;})()}</table>
+</body></html>`;
+    const blob=new Blob(["\ufeff",html],{type:"application/msword"});
+    const url=URL.createObjectURL(blob); const a=document.createElement("a");
+    a.href=url; a.download="單字賓果學習單.doc"; document.body.appendChild(a); a.click();
+    setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},500);
+  };
+
+  accents(){
+    const map={"陽光橘":["#ff7a3d","#2bb3a3"],"海洋藍":["#2f8bff","#00c2a8"],"莓果紫":["#a855f7","#ec4899"],"森林綠":["#22a06b","#f59e0b"]};
+    return map[this.props.colorTheme] || map["陽光橘"];
+  }
+
+  renderVals(){
+    const s=this.state; const [a,a2]=this.accents(); const dark=s.dark;
+    const appStyle={
+      "--accent":a, "--accent2":a2,
+      "--bg": dark?"#141829":"#fff8ee",
+      "--bg2": dark?"#1b2138":"#fdf1e2",
+      "--panel": dark?"#212747":"#ffffff",
+      "--text": dark?"#f2f4ff":"#3a2e22",
+      "--muted": dark?"#98a2cf":"#8a7a68",
+      "--line": dark?"#333c66":"#f0e2cf",
+      minHeight:"100vh", width:"100%",
+      background: dark?"linear-gradient(160deg,#141829,#1c2340)":"linear-gradient(160deg,#fff8ee,#ffe9d6)",
+      color:"var(--text)", paddingBottom:"20px", transition:"background .4s",
+    };
+
+    const isMenu=s.screen==="menu";
+    const isStudent=s.playMode==="student";
+    const isStudentGame=s.screen==="game"&&isStudent;
+    const isTeacherGame=s.screen==="game"&&!isStudent;
+    const isWin=s.screen==="win";
+
+    // menu option builders
+    const segBase=(active)=>({padding:"14px",border:"2px solid "+(active?a:"var(--line)"),borderRadius:"14px",cursor:"pointer",fontWeight:800,fontFamily:"inherit",fontSize:"15px",background:active?a:"var(--panel)",color:active?"#fff":"var(--text)",textAlign:"center",transition:"all .15s",boxShadow:active?"0 6px 16px rgba(0,0,0,.15)":"none"});
+    const playModeOpts=[
+      {key:"student",icon:"🎮",label:"自學模式",desc:"互動點格 · 計分排行"},
+      {key:"teacher",icon:"👩‍🏫",label:"教學模式",desc:"投影叫號 · 全班同玩"},
+    ].map(o=>({...o,style:{...segBase(s.playMode===o.key),display:"flex",flexDirection:"column",alignItems:"center",gap:"0"},pick:()=>{this.sfx("click");this.setState({playMode:o.key});}}));
+    const gridOpts=[{key:5,label:"5×5 · 25字"},{key:4,label:"4×4 · 16字"}].map(o=>({...o,style:{...segBase(s.grid===o.key),flex:"1"},pick:()=>{this.sfx("click");this.setState({grid:o.key});}}));
+    const callList=[{key:"zh",label:"中文意思"},{key:"cloze",label:"例句挖空"},{key:"audio",label:"聽發音"},{key:"def",label:"英文定義"},{key:"mix",label:"🎲 混合(推薦)"}];
+    const callOpts=callList.map(o=>({...o,style:{...segBase(s.callChoice===o.key),padding:"11px 16px",fontSize:"14px"},pick:()=>{this.sfx("click");this.setState({callChoice:o.key});}}));
+
+    // leaderboard
+    const medals=["#ffb300","#b0bec5","#cd7f32"];
+    const topScores=s.leaderboard.slice(0,7).map((e,i)=>({rank:i+1,name:e.name,score:e.score,meta:e.grid+"×"+e.grid+" · "+this.fmtTime(e.time),medal:i<3?medals[i]:"var(--muted)",bg:i%2?"var(--bg2)":"transparent"}));
+
+    // HUD
+    const total=s.board.length||s.grid*s.grid;
+    const markedCount=s.board.filter(c=>c.marked).length;
+    const hud=[
+      {icon:"⏱️",label:"時間",value:this.fmtTime(s.elapsed),color:"var(--text)"},
+      {icon:"🔥",label:"連勝 COMBO",value:"x"+s.combo,color:s.combo>=2?a:"var(--text)"},
+      {icon:"⭐",label:"分數",value:s.score,color:a},
+      {icon:"🎯",label:"進度",value:markedCount+"/"+total,color:"var(--text)"},
+    ];
+
+    // board
+    const boardStyle={display:"grid",gridTemplateColumns:"repeat("+s.grid+",1fr)",gap:s.grid===5?"10px":"12px",maxWidth:s.grid===5?"760px":"620px",margin:"0 auto"};
+    const wordFs=s.grid===5?"clamp(13px,2.1vw,20px)":"clamp(15px,2.6vw,24px)";
+    const t=this.target();
+    const cells=s.board.map((c,i)=>({
+      en:c.en, marked:c.marked, onClick:()=>this.selectCell(i),
+      wordStyle:{fontFamily:"'Fredoka',sans-serif",fontWeight:600,fontSize:wordFs,lineHeight:1.1,wordBreak:"break-word",padding:"0 4px",zIndex:1,opacity:c.marked?0.35:1},
+      style:{position:"relative",aspectRatio:"1/1",border:"none",borderRadius:"16px",cursor:isStudentGame?"pointer":"default",display:"grid",placeItems:"center",background:c.marked?"linear-gradient(135deg,"+a+","+a2+")":this.CARD[i%this.CARD.length],color:c.marked?"#fff":"#3a2e22",boxShadow:c.marked?"0 8px 20px rgba(0,0,0,.2)":"0 4px 10px rgba(0,0,0,.1)",transform:c.marked?"scale(1)":"scale(1)",transition:"transform .12s, box-shadow .2s",overflow:"hidden"},
+    }));
+
+    // clue element (createElement so shake replays via key=attempt)
+    const cp=this.clueParts();
+    const showReveal=isTeacherGame && s.reveal;
+    const clueChildren=[
+      React.createElement("div",{key:"lbl",style:{fontSize:"14px",fontWeight:800,color:"rgba(255,255,255,.9)",letterSpacing:".5px",marginBottom:"10px"}},cp.icon+"  "+cp.label),
+    ];
+    if(s.mode==="audio"){
+      clueChildren.push(React.createElement("button",{key:"spk",onClick:()=>this.speak(t?t.en:""),style:{fontSize:"64px",background:"rgba(255,255,255,.2)",border:"none",borderRadius:"20px",width:"110px",height:"110px",cursor:"pointer",color:"#fff"}},"🔊"));
+      clueChildren.push(React.createElement("div",{key:"sub",style:{fontSize:"15px",fontWeight:700,color:"rgba(255,255,255,.85)",marginTop:"8px"}},cp.sub));
+    } else {
+      clueChildren.push(React.createElement("div",{key:"big",style:{fontFamily:s.mode==="zh"?"'Noto Sans TC',sans-serif":"'Fredoka',sans-serif",fontWeight:700,fontSize:s.mode==="cloze"||s.mode==="def"?"clamp(20px,3.4vw,32px)":"clamp(30px,5vw,52px)",color:"#fff",lineHeight:1.3,textShadow:"0 2px 8px rgba(0,0,0,.15)"}},cp.big));
+    }
+    if(s.wrong && isStudentGame){
+      clueChildren.push(React.createElement("div",{key:"hint",style:{marginTop:"12px",fontSize:"16px",fontWeight:800,color:"#fff",background:"rgba(0,0,0,.18)",display:"inline-block",padding:"6px 16px",borderRadius:"20px"}},"再試一次！找找看是哪一格 🔎"));
+    }
+    if(showReveal){
+      clueChildren.push(React.createElement("div",{key:"ans",style:{marginTop:"14px",padding:"12px 20px",background:"rgba(255,255,255,.22)",borderRadius:"16px",display:"inline-block"}},
+        React.createElement("span",{style:{fontFamily:"'Fredoka',sans-serif",fontWeight:700,fontSize:"32px",color:"#fff"}},t?t.en:""),
+        React.createElement("span",{style:{fontSize:"18px",fontWeight:700,color:"rgba(255,255,255,.9)",marginLeft:"14px"}},t?t.zh:"")
+      ));
+    }
+    const clueEl=React.createElement("div",{
+      key:"clue-"+s.attempt+"-"+s.ptr+"-"+(s.reveal?"r":"n"),
+      style:{textAlign:"center",background:"linear-gradient(120deg,"+a+","+a2+")",borderRadius:"22px",padding:"26px 24px",marginBottom:"20px",boxShadow:"0 12px 30px rgba(0,0,0,.16)",animation:(s.wrong&&isStudentGame)?"shake .42s both":"fadeIn .35s both",minHeight:"120px",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center"}
+    },clueChildren);
+
+    // combo toast
+    let comboToast=null;
+    if(s.toast){
+      comboToast=React.createElement("div",{key:"toast-"+s.toast.k,style:{position:"absolute",left:"50%",top:"0",transform:"translateX(-50%)",pointerEvents:"none",zIndex:20,animation:"floatUp 1s ease-out both",fontFamily:"'Fredoka',sans-serif",fontWeight:700,color:"#fff",textShadow:"0 3px 10px rgba(0,0,0,.35)",whiteSpace:"nowrap",textAlign:"center"}},
+        React.createElement("div",{style:{fontSize:"34px"}},"🔥 COMBO x"+s.toast.n),
+        React.createElement("div",{style:{fontSize:"22px"}},"+"+s.toast.gain)
+      );
+    }
+
+    // teacher
+    const calledCount=s.ptr+1; const totalCount=s.order.length||total;
+    const progressPct=Math.round((calledCount/Math.max(1,totalCount))*100)+"%";
+    const calledChips=s.order.slice(0,s.ptr+1).map((oi,idx)=>{ const cur=idx===s.ptr; return {en:s.board[oi].en,style:{padding:"8px 14px",borderRadius:"12px",fontWeight:800,fontSize:"15px",background:cur?"linear-gradient(120deg,"+a+","+a2+")":"var(--bg2)",color:cur?"#fff":"var(--text)",boxShadow:cur?"0 4px 12px rgba(0,0,0,.15)":"none"}}; });
+    const atEnd=s.ptr>=totalCount-1;
+
+    // win
+    const winStats=[
+      {icon:"⭐",value:s.score,label:"總分"},
+      {icon:"⏱️",value:this.fmtTime(s.elapsed),label:"用時"},
+      {icon:"🔥",value:"x"+s.maxCombo,label:"最高連勝"},
+    ];
+    const confetti=isWin && (this.props.confettiOn!==false) ? Array.from({length:70}).map(()=>{ const c=this.CARD[Math.floor(Math.random()*this.CARD.length)]; return `position:absolute;top:-10vh;left:${Math.random()*100}%;width:${8+Math.random()*8}px;height:${10+Math.random()*10}px;background:${c};border-radius:2px;animation:confFall ${2.5+Math.random()*2.5}s linear ${Math.random()*2}s infinite;`; }) : [];
+
+    return {
+      appStyle,
+      soundIcon:s.sound?"🔊":"🔇", darkIcon:s.dark?"🌙":"☀️",
+      toggleSound:this.toggleSound, toggleDark:this.toggleDark, goMenu:this.goMenu,
+      isMenu, isStudent, isStudentGame, isTeacherGame, isWin,
+      playModeOpts, gridOpts, callOpts,
+      nameValue:s.name, onName:this.onName, startGame:this.startGame,
+      hasScores:topScores.length>0, noScores:topScores.length===0, topScores,
+      downloadDoc:this.downloadDoc,
+      hud, boardStyle, cells, clueEl, comboToast,
+      calledCount:Math.min(calledCount,totalCount), totalCount, progressPct, calledChips,
+      revealToggle:this.revealToggle, revealLabel:s.reveal?"隱藏答案":"揭曉答案",
+      nextCall:this.nextCall, nextLabel:atEnd?"完成叫號":"下一個",
+      winSubtitle:isStudent?"你把整個盤面連線完成了！":"全班挑戰完成，太棒了！",
+      winStats, confetti,
+      showSave:isWin&&isStudent&&!s.saved, saved:s.saved, saveScore:this.saveScore,
+    };
+  }
+}
+</script>
+</body>
+</html>
